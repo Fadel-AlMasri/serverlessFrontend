@@ -5,35 +5,41 @@ import React, { useState } from "react";
 import { Input } from "@nextui-org/react";
 
 const S3Bucket = () => {
-  const [file, setFile] = useState<Record<string, any>>({});
-  const [fileData, setFileData] = useState<string>("");
+  const [file, setFile] = useState<any>();
+  // const [fileData, setFileData] = useState<string>("");
 
   const sendFile = async () => {
+    const data = new FormData();
+    console.log(typeof data);
+    if (!file) {
+      console.log("Enter an image");
+      return;
+    }
+
+    data.append("file", file);
+    console.log("data ==> ", data);
+
     const response = await fetch(
       "https://016z72h3og.execute-api.us-west-2.amazonaws.com/",
       {
         method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         body: JSON.stringify({
           fileName: file.name,
-          fileData: fileData,
+          fileInfo: file,
         }),
       }
     );
-    const json = await response.json();
-    console.log(json);
+    const body = await response.json();
+    console.log(body);
   };
 
   // onChange
   const handleFileChange = (e: any) => {
     const datafile = e.target.files[0];
     setFile(datafile);
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFileData(reader.result as string);
-    };
-    // reads the data and encoded it as base64
-    reader.readAsDataURL(datafile);
   };
 
   return (
